@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="KetikCepat — Tes kecepatan mengetik bahasa Indonesia modern dan akurat. Ukur WPM bersih, WPM kotor, dan akurasi mengetik Anda.">
+    <title>KetikCepat — Tes Mengetik Bahasa Indonesia</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app">
+
+    <!-- ── Header: Logo + Actions ── -->
+    <header class="header">
+        <div class="logo">
+            <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                <line x1="6" y1="10" x2="6.01" y2="10"></line>
+                <line x1="10" y1="10" x2="10.01" y2="10"></line>
+                <line x1="14" y1="10" x2="14.01" y2="10"></line>
+                <line x1="18" y1="10" x2="18.01" y2="10"></line>
+                <line x1="8" y1="14" x2="16" y2="14"></line>
+            </svg>
+            <span class="logo-text">KetikCepat</span>
+        </div>
+
+        <div class="header-actions">
+            <button class="icon-btn" id="btn-sound" title="Suara Ketikan (aktif / mati)" aria-label="Toggle suara ketikan" aria-pressed="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+            </button>
+            <button class="icon-btn" id="btn-theme" title="Ubah Tema Terang / Gelap" aria-label="Toggle tema tampilan">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+            <button class="icon-btn" id="btn-history" title="Riwayat Tes" aria-label="Buka riwayat tes">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- ── Toolbar: Mode + Options ── -->
+    <nav class="toolbar" aria-label="Pilihan tes">
+        <!-- Mode Buttons -->
+        <div class="control-group" id="mode-selector">
+            <button class="mode-btn active" data-mode="time" aria-pressed="true">Waktu</button>
+            <button class="mode-btn" data-mode="words" aria-pressed="false">Kata</button>
+        </div>
+
+        <span class="divider"></span>
+
+        <!-- Time Options -->
+        <div class="control-group" id="time-options">
+            <button class="opt-btn" data-val="15" aria-pressed="false">15s</button>
+            <button class="opt-btn active" data-val="30" aria-pressed="true">30s</button>
+            <button class="opt-btn" data-val="60" aria-pressed="false">60s</button>
+        </div>
+
+        <!-- Word Options (hidden by default) -->
+        <div class="control-group hidden" id="word-options">
+            <button class="opt-btn" data-val="10" aria-pressed="false">10</button>
+            <button class="opt-btn active" data-val="25" aria-pressed="true">25</button>
+            <button class="opt-btn" data-val="50" aria-pressed="false">50</button>
+            <button class="opt-btn" data-val="100" aria-pressed="false">100</button>
+        </div>
+
+        <span class="divider"></span>
+
+        <!-- Extra Toggles -->
+        <div class="control-group">
+            <button class="toggle-btn" id="btn-punctuation" title="Aktifkan Tanda Baca" aria-label="Toggle tanda baca" aria-pressed="false">@</button>
+            <button class="toggle-btn" id="btn-numbers" title="Aktifkan Angka" aria-label="Toggle angka" aria-pressed="false">123</button>
+        </div>
+    </nav>
+
+    <!-- ── Test Section ── -->
+    <section id="sec-test" class="section">
+        <div class="test-header">
+            <div class="timer-container">
+                <div class="timer" id="timer" aria-live="polite">30</div>
+                <div class="live-stats" id="live-stats">
+                    <span class="live-wpm" id="live-wpm">0 WPM</span>
+                    <span class="live-acc" id="live-acc">100% ACC</span>
+                </div>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <input type="text" id="hidden-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" autofocus aria-label="Input pengetikan">
+
+        <div class="typing-area" id="typing-area" role="region" aria-label="Area pengetikan">
+            <!-- Words rendered here by JS -->
+        </div>
+
+        <div class="hint">
+            <p>Mulai mengetik untuk memulai tes &nbsp;·&nbsp; <kbd>Tab</kbd> Ulang &nbsp;·&nbsp; <kbd>Esc</kbd> Batal</p>
+            <button class="restart-btn" id="btn-restart" title="Mulai Ulang (Tab)" aria-label="Mulai ulang tes">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="1 4 1 10 7 10"></polyline>
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                </svg>
+            </button>
+        </div>
+    </section>
+
+    <!-- ── Result Section ── -->
+    <section id="sec-result" class="section hidden" aria-labelledby="result-title">
+        <div class="result">
+            <h2 class="result-title" id="result-title">Hasil Tes</h2>
+
+            <div class="stats-grid-primary">
+                <div class="stat">
+                    <span class="stat-label">WPM Bersih</span>
+                    <span class="stat-number" id="out-wpm">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">WPM Kotor</span>
+                    <span class="stat-number secondary" id="out-gross-wpm">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Akurasi</span>
+                    <span class="stat-number" id="out-acc">0%</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Waktu</span>
+                    <span class="stat-number secondary" id="out-time">0s</span>
+                </div>
+            </div>
+
+            <div class="stats-grid-secondary">
+                <div class="sub-stat">
+                    <span class="sub-stat-label">Total Karakter</span>
+                    <span class="sub-stat-value" id="out-total-chars">0</span>
+                </div>
+                <div class="sub-stat">
+                    <span class="sub-stat-label">Benar</span>
+                    <span class="sub-stat-value text-correct" id="out-correct-chars">0</span>
+                </div>
+                <div class="sub-stat">
+                    <span class="sub-stat-label">Salah</span>
+                    <span class="sub-stat-value text-error" id="out-error-chars">0</span>
+                </div>
+                <div class="sub-stat">
+                    <span class="sub-stat-label">Total Kata</span>
+                    <span class="sub-stat-value" id="out-total-words">0</span>
+                </div>
+            </div>
+
+            <div class="chart-wrapper">
+                <p class="chart-label">Kecepatan Mengetik (WPM) per Detik</p>
+                <canvas id="chart-wpm" width="600" height="200" role="img" aria-label="Grafik kecepatan mengetik"></canvas>
+            </div>
+
+            <div class="result-actions">
+                <button class="action-btn" id="btn-next">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                    Tes Lagi <span class="kbd-hint">(Enter)</span>
+                </button>
+                <button class="action-btn secondary" id="btn-share" aria-label="Salin ringkasan hasil tes">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                    </svg>
+                    <span class="share-label">Salin Hasil</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── History Section ── -->
+    <section id="sec-history" class="section hidden" aria-labelledby="history-title">
+        <div class="history">
+            <div class="history-top">
+                <h2 id="history-title">Riwayat Tes</h2>
+                <div class="history-controls">
+                    <button class="text-btn danger" id="btn-clear-history">Hapus Riwayat</button>
+                    <button class="icon-btn" id="btn-close-history" title="Tutup Riwayat" aria-label="Tutup riwayat">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="best-stats-panel">
+                <div class="best-stat-box">
+                    <span class="best-stat-label">Best WPM</span>
+                    <span class="best-stat-value" id="best-wpm">0</span>
+                </div>
+                <div class="best-stat-box">
+                    <span class="best-stat-label">Best Akurasi</span>
+                    <span class="best-stat-value" id="best-acc">0%</span>
+                </div>
+                <div class="best-stat-box">
+                    <span class="best-stat-label">Total Tes</span>
+                    <span class="best-stat-value" id="total-tests">0</span>
+                </div>
+            </div>
+
+            <div class="history-scroll">
+                <table id="tbl-history">
+                    <thead>
+                        <tr>
+                            <th scope="col">Tanggal & Waktu</th>
+                            <th scope="col">WPM Bersih</th>
+                            <th scope="col">Akurasi</th>
+                            <th scope="col">Durasi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbl-body"></tbody>
+                </table>
+                <div id="empty-history" class="empty-msg hidden">Belum ada riwayat tes.</div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<!-- Confirmation Modal -->
+<div id="modal-confirm" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-confirm-title">
+    <div class="modal-overlay" id="confirm-overlay" tabindex="-1"></div>
+    <div class="modal-content">
+        <h3 id="modal-confirm-title">Hapus Semua Riwayat?</h3>
+        <p>Tindakan ini akan menghapus seluruh data riwayat tes Anda secara permanen. Apakah Anda yakin?</p>
+        <div class="modal-actions">
+            <button class="modal-btn cancel" id="btn-confirm-cancel">Batal</button>
+            <button class="modal-btn confirm" id="btn-confirm-ok">Hapus</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
